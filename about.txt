@@ -1,0 +1,8 @@
+create google account
+create atlas account
+  set db - db, collection, populate db with dumb data
+code server side
+  conect to db
+  figure out the endpoints
+create a Twilio Studio application
+set environment in order to integrate the pieces
