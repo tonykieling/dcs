@@ -1,6 +1,6 @@
-create google account
-create atlas account
-  set db - db, collection, populate db with dumb data
+Xcreate google account
+Xcreate atlas account
+  Xset db - db, collection, populate db with dumb data
 code server side
   conect to db
   figure out the endpoints
