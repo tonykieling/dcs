@@ -19,7 +19,9 @@ try {
   console.log("error on MongoDB connection: ", err);
 }
 
-
+/**
+ * one way of receiving and reply message through node
+ * need to understand how to get the history of the conversation
 const express = require('express');
 const session = require('express-session');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
@@ -43,12 +45,32 @@ app.post('/sms', (req, res) => {
 
   const twiml = new MessagingResponse();
   twiml.message(message);
-
+  
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 });
 
-
 app.listen(PORT, () => {
   console.log(`Express server listening on port ${PORT}`);
 });
+*/
+
+
+/**
+ * this way is possible to query Twilio the messages in their db
+ *
+// Load configuration information from system environment variables.
+const TWILIO_ACCOUNT_SID  = process.env.TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN   = process.env.TWILIO_AUTH_TOKEN,
+      TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+
+// Create an authenticated client to access the Twilio REST API
+const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+// const client = require('twilio')(accountSid, authToken);
+
+
+client.messages.list({limit: 20})
+  .then(messages => messages.forEach(m => console.log(m)));
+*/
+
+
