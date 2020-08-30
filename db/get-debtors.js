@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /**
  * the functions in this file talk to the database so it takes employee info and returns to their callers
  */
@@ -10,11 +10,13 @@ const getAll = async() => {
     const debtors = await Debtor
       .find();
 
-    console.log("debtors", debtors);
+    if (!debtors.length) return false;
+
     return ({
       debtors,
       counter: debtors.length
     });
+
   } catch(error){
     console.log("Error:", error.message);
     return false;
