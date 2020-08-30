@@ -1,8 +1,10 @@
 Xcreate google account
 Xcreate atlas account
   Xset db - db, collection, populate db with dumb data
-code server side
-  connect to db
-  gather tdebtors info
-  sen message to all debtors
+Xcode server side
+  Xconnect to db
+  Xgather debtors info
+  Xsend message to all debtors
+  Xhandle first message received from Twilio (no cookie)
+  Xhandle basic errors on switch/case on server
 

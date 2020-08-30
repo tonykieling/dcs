@@ -8,23 +8,51 @@ const express           = require('express'),
 const cookieTimeAlive = 1000 * 60 * 60 * 1;
 
 router.post("/", async(req, res) => {
-  console.log(" *********** inside conversation");
-  console.log("req.cookies.conversation", req.cookies.conversation)
+  // console.log(" *********** inside conversation");
+  // console.log("req.cookies.conversation", req.cookies.conversation)
 
-  const conversationHistory = Number(req.cookies.conversation);
+  let conversationHistory = Number(req.cookies.conversation);
   const body = req.body.Body;
-  console.log(" ***** conversationHistory", conversationHistory);
-  console.log(" ***** req.body", req.body);
+  // console.log(" ***** conversationHistory", conversationHistory);
+  // console.log(" ***** req.body", req.body);
 
   const response = new MessagingResponse();
 
   if (!conversationHistory) {
-    response.message(`\nSorry. Conversation was lost.\nPlease call 123-456-7890 for further information.`);
-    return res.send(response.toString());
+    const from = req.body.From; // thius is phone number which is sending the message
+    const twilio              = require('twilio'),
+          TWILIO_ACCOUNT_SID  = process.env.TWILIO_ACCOUNT_SID,
+          TWILIO_AUTH_TOKEN   = process.env.TWILIO_AUTH_TOKEN;
+    const client              = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+    // let's grab info avout the last message sent to this phone number and
+    // figure out what stage is the conversation
+    // it should be the first reply message after receiving from our system OR
+    // an answer for the above, but after Twilio cookie has expired - 4 hours (from Twilio documentation)
+    const historyMessages = await client.messages
+      .list({
+        to: from,
+        limit: 1
+        // dateSent: new Date(Date.UTC(2020, 8, 30, 0, 0, 0)),
+        // dateSentAfter: new Date(Date.UTC(2020, 7, 30, 21, 20, 0)), /// this is okay and = 2020-08-30T21:20:00.000Z
+        // dateSentBefore: new Date(Date.UTC(2020, 8, 30, 0, 0, 0)),
+      });
+
+    // console.log("NUmber of messages:", historyMessages.length);
+    // console.log("======================================\n historyMessages", historyMessages);
+
+    if (historyMessages[0].body.search("behalf") !== -1) {
+      conversationHistory = 1;
+    } else if (historyMessages[0].body.search("Today") !== -1){
+      conversationHistory = 2;
+    } else {
+      response.message(`\nSorry. Conversation was lost.\nPlease call 123-456-7890 for further information.`);
+      return res.send(response.toString());
+    }
+
   }
 
 
-  
   let cachedConversation = "";
   switch (conversationHistory) {
     case 1:
