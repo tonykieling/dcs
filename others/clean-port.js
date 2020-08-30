@@ -1,14 +1,7 @@
 const shell = require("shelljs");
 
-// const x = shell.exec("lsof -i :3333 | grep 3333", {silent: true}, (code, output) => {
-//   // shell.echo(`exit code => ${code}`);
-  
-//   // shell.echo(`output => ${output}`);
-//   // return output;
-// }).output;
 const x = shell.exec("lsof -i :3456 | grep -i *:3456").split(" ").join("");
-// const x = shell.exec("lsof -i :3333 | grep 3333");
-// console.log(`x = '${x}'`);
+
 if (x != "") {
   let portNumber = "";
   for (let c = 0; c < 12; c += 1) {

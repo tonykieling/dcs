@@ -1,27 +1,83 @@
-// const express     = require("express");
-const PORT        = process.env.PORT || 3456;
-// const path        = require('path');
-// const app         = express();
-// const morgan      = require("morgan");
-// const bodyParser  = require("body-parser");
+const express       = require("express");
+const PORT          = process.env.PORT || 3456;
+const session       = require('express-session');
+const cookieParser  = require('cookie-parser');
+const logger        = require('morgan');
+const app           = express();
+const bodyParser    = require("body-parser");
 
-/**
- * db query
- * 
-const mongoose    = require("mongoose");
-require('dotenv').config();
+const firstMessage  = require("./message/first-message.js");
+// const conversation  = require
 
-try {
-  mongoose.connect(process.env.DB, { 
-    useNewUrlParser: true,
-    useUnifiedTopology: true })
-    .then(z => console.log(" => MongoDB connection success!"))
-    .catch(error => console.log("error:", error.message));
+const db = require("./db/db-connection.js");
+db.connect();
 
-} catch (err) {
-  console.log("error on MongoDB connection: ", err);
-}
+app.use(logger('dev')); //temp dev purpose
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+app.use(session({
+  secret: 'it-supposed-to-Be-a-$tr0ng_and_secret-Word', 
+  cookie: { maxAge: 60000 },
+  resave: false,
+  saveUninitialized: true,
+}));
+
+app.use("/firstMessage", firstMessage);
+
+// app.use("/conversation", );
+
+app.listen(PORT, () => {
+  console.log(`Express server listening on port ${PORT}`);
+});
+
+
+/*
+// this is the interface which talks to twilio, and in its turn they talk to the debtors
+app.post('/sms', (req, res) => {
+  console.log("req==>", req.body);
+
+  const MessagingResponse = require('twilio').twiml.MessagingResponse;
+
+  const textReceived = req.body.Body;
+  const smsCount = req.session.counter || 1;
+
+  let message = "";
+
+  switch(Number(smsCount)) {
+    case 1:
+
+      if (textReceived === "111") {
+        message = "This is after first DEBTOR answer.\n Second question? \n(Please reply Yes(y) or No(n))";
+        req.session.counter = smsCount + 1;
+      } else
+        message = "Please, answer 111 or 222"
+      break;
+
+    case 2:
+      message = "This is after second answer.\n THIRD question? \n(Please reply Yes(y) or No(n))";
+      break;
+
+    case 3:
+      message = "This is after THIRD answer.\n This is forth question? \n(Please reply Yes(y) or No(n))";
+      break;
+
+    default:
+      console.log("Ops, none of the above. :/");
+  }
+
+  const twiml = new MessagingResponse();
+  twiml.message(message);
+  
+  res.writeHead(200, {'Content-Type': 'text/xml'});
+  res.end(twiml.toString());
+});
 */
+
+
+
 
 
 /**
@@ -78,101 +134,3 @@ client.messages.list({limit: 20})
   .then(messages => messages.forEach(m => console.log(m)));
 */
 
-
-
-/**
- * one way of receiving and reply message through node
- * need to understand how to get the history of the conversation
- */
-const express = require('express');
-const session = require('express-session');
-const twilio = require('twilio');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-
-const MessagingResponse = require('twilio').twiml.MessagingResponse;
-
-const app = express();
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
-app.use(session({
-  secret: 'anything-you-want-but-keep-secret', 
-  cookie: { maxAge: 60000 },
-  resave: false,
-  saveUninitialized: true,
-}));
-
-// this is the method to trigger messages to twilio devilery for the debtors
-app.post("/start", (req, res) => {
-  require('dotenv').config();
-
-  console.log("1 - this is start!!!!");
-
-  // Load configuration information from system environment variables.
-  const TWILIO_ACCOUNT_SID  = process.env.TWILIO_ACCOUNT_SID,
-        TWILIO_AUTH_TOKEN   = process.env.TWILIO_AUTH_TOKEN,
-        TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
-
-  // Create an authenticated client to access the Twilio REST API
-  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-  
-  client.messages.create({
-    // to: req.body.to,
-    to: "+17789389351",
-    // from: TWILIO_PHONE_NUMBER,
-    from: TWILIO_PHONE_NUMBER,
-    body: 'Hi sir Fulano. Please answer 111 or 222.'
-  }).then(function(message) {
-    console.log("message::", message);
-    // When we get a response from Twilio, respond to the HTTP POST request
-    res.send('Message is inbound!');
-  });
-
-});
-
-
-// this is the interface which talks to twilio, and in its turn they talk to the debtors
-app.post('/sms', (req, res) => {
-  console.log("req==>", req.body);
-
-  const textReceived = req.body.Body;
-  const smsCount = req.session.counter || 1;
-
-  let message = "";
-
-  switch(Number(smsCount)) {
-    case 1:
-
-      if (textReceived === "111") {
-        message = "This is after first DEBTOR answer.\n Second question? \n(Please reply Yes(y) or No(n))";
-        req.session.counter = smsCount + 1;
-      } else
-        message = "Please, answer 111 or 222"
-      break;
-
-    case 2:
-      message = "This is after second answer.\n THIRD question? \n(Please reply Yes(y) or No(n))";
-      break;
-
-    case 3:
-      message = "This is after THIRD answer.\n This is forth question? \n(Please reply Yes(y) or No(n))";
-      break;
-
-    default:
-      console.log("Ops, none of the above. :/");
-  }
-
-  const twiml = new MessagingResponse();
-  twiml.message(message);
-  
-  res.writeHead(200, {'Content-Type': 'text/xml'});
-  res.end(twiml.toString());
-});
-
-
-app.listen(PORT, () => {
-  console.log(`Express server listening on port ${PORT}`);
-});
