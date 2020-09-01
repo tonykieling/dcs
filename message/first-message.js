@@ -31,11 +31,12 @@ router.post("/", async(req, res) => {
   const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
   for(let debtor of allDebtors.debtors) {
-    // if (debtor.name === "Bob")
+    if (debtor.name === "Bob")
     client.messages.create({
       to: debtor.phone,
       from: TWILIO_PHONE_NUMBER,
-      body: `\nHello ${debtor.name}.\nOn behalf of XYZ we want to talk to you about a debt of $${debtor.debt}.\n\nAre you available to chat?`
+      body: `\nHello ${debtor.name}.\nOn behalf of XYZ we want to talk to you about a debt of $${debtor.debt}.\n\nAre you available to chat?`,
+      // mymetadata: 1111111111 // it is NOT possible send a custom field using Twilio...
     }).then(function(message) {
       console.log("message::", message);
 

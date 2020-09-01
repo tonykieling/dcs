@@ -38,10 +38,10 @@ router.post("/", async(req, res) => {
         // dateSentBefore: new Date(Date.UTC(2020, 8, 30, 0, 0, 0)),
       });
 
-    // console.log("NUmber of messages:", historyMessages.length);
-    // console.log("======================================\n historyMessages", historyMessages);
+    console.log("NUmber of messages:", historyMessages.length);
+    console.log("======================================\n historyMessages", historyMessages);
 
-    if (historyMessages[0].body.search("behalf") !== -1) {
+    if ((historyMessages[0].body.search("behalf") !== -1) || (historyMessages[0].body.search("can you send Yes"))) {
       conversationHistory = 1;
     } else if (historyMessages[0].body.search("Today") !== -1){
       conversationHistory = 2;
@@ -49,7 +49,6 @@ router.post("/", async(req, res) => {
       response.message(`\nSorry. Conversation was lost.\nPlease call 123-456-7890 for further information.`);
       return res.send(response.toString());
     }
-
   }
 
 
@@ -57,9 +56,19 @@ router.post("/", async(req, res) => {
   switch (conversationHistory) {
     case 1:
       console.log(" --- Inside CASE 1");
-      if ((Number(body) === 1) || (body.toLowerCase() === "yes") || (body.toLowerCase() === "y") || (body.toLowerCase() === "yep")) {
+      if ((body.toLowerCase() === "yes") 
+          || (body.toLowerCase() === "y") 
+          || (body.toLowerCase() === "yep")
+          || (body.toLowerCase() === "sure")) {
         response.message(`\nGreat! \nI am assuming you are able to pay all the debt.\nDo you wanna pay by?\n Send\n  1 for Credit Card or \n  2 for Transferwise.`);
         cachedConversation = 2;
+      } else if ((body.toLowerCase() === "no") 
+          || (body.toLowerCase() === "nope") 
+          || (body.toLowerCase() === "not really")) {
+        response.message(`\nThank you for your honest answer.\nAny information, please call 123.`);
+        res.clearCookie("conversation");
+        res.type("text/xml");
+        return res.send(response.toString());        
       } else {
         response.message(`\nI cannot understand what you mean.\n Please, can you send Yes if you are able to pay or No if not?`);
         cachedConversation = 1;
@@ -98,7 +107,6 @@ router.post("/", async(req, res) => {
       response.message("Default.... :/ Can you answer asd?");
       break;
   }
-
   
   res.type("text/xml");
   res.send(response.toString());

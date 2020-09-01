@@ -1,0 +1,49 @@
+Debt Collection System (DCS)
+
+- What is the system?
+It is a plataform to automated conversation between a debt collector and debtors.
+
+- How does it work?
+1 - There is a manual (now) process which triggers a function that sends SMS for all debtors
+2 - The debtors answer the message to Twilio
+3 - Twilio sends the answer to the Server
+4 - The server processes the messages
+5 - Back and Forth
+
+Debtor(SMS) => Twilio => Server => Twilio => Debtor
+
+- System's parts (now)
+1 - Database that holds all debtors information (debtors data)
+2 - Server that send, receive and process the messages (when the conversation flow happens)
+3 - Twilio is the SMS sender - all SMS messages will pass through it
+4 - Debtor's phone is the device they use to receive/send message to the system (DCS)
+
+1- There is a trigger which send a initial message for all debtors
+  Message:
+    Hello <debtor.name>.
+    On behalf of XYZ we want to talk to you about a debt of $$<debtor.debt>.
+    
+    Are you available to chat?`
+
+2- When a debtor answer, the system starts the flow of conversation.
+  If the answer is Yes:
+    Message:
+      Great!
+      I am assuming you are able to pay all the debt.
+      Do you wanna pay by?
+      Send
+        1 for Credit Card or 
+        2 for Transferwise.
+  If no:
+    Message:
+      Thank you for your honest answer.
+      Any information, please call 123.
+
+
+Suggestion of missing parts
+  1- Businness rules
+  2- UI/Administration
+  3- Settings/Integrations with the company system
+  4- Payment integration
+
+Cost is $0.015 any 2 messages sent by Twilio
