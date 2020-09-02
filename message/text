@@ -1,18 +1,22 @@
 Debt Collection System (DCS)
 
+Schedule
+
+Goal of the presentation and the current system
+
 - What is the system?
 It is a plataform to automated conversation between a debt collector and debtors.
 
 - How does it work?
-1 - There is a manual (now) process which triggers a function that sends SMS for all debtors
-2 - The debtors answer the message to Twilio
-3 - Twilio sends the answer to the Server
-4 - The server processes the messages
-5 - Back and Forth
+1 - There is a manual (now) process which triggers a function to send a initial message (SMS) for all debtors.
+2 - The debtors answer the message to Twilio.
+3 - Twilio sends the answer to the Server.
+4 - The server processes the messages.
+5 - Back and Forth until they get a deal.
 
 Debtor(SMS) => Twilio => Server => Twilio => Debtor
 
-- System's parts (now)
+- System's Components (now)
 1 - Database that holds all debtors information (debtors data)
 2 - Server that send, receive and process the messages (when the conversation flow happens)
 3 - Twilio is the SMS sender - all SMS messages will pass through it
