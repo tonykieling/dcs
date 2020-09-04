@@ -12,9 +12,9 @@ router.post("/", async(req, res) => {
   // console.log("req.cookies.conversation", req.cookies.conversation)
 
   let conversationHistory = Number(req.cookies.conversation);
-  const body = req.body.Body;
-  // console.log(" ***** conversationHistory", conversationHistory);
-  // console.log(" ***** req.body", req.body);
+  const body = req.body.Body.trim();
+  console.log(" ***** conversationHistory", conversationHistory);
+  console.log(" ***** req.body", req.body);
 
   const response = new MessagingResponse();
 
@@ -43,14 +43,17 @@ router.post("/", async(req, res) => {
     // console.log("NUmber of messages:", historyMessages.length);
     // console.log("======================================\n historyMessages", historyMessages);
 
+    const mostRecentMessage = historyMessages[0].body;
+    console.log("---mostRecentMessage", mostRecentMessage);
     if ((historyMessages[0].body.search("behalf") !== -1)) {
       conversationHistory = 1;
-    } else if (historyMessages[0].body.search("Credit Card")){
+    } else if (historyMessages[0].body.search("Credit Card") !== -1){
       conversationHistory = 2;
-    } else if ((historyMessages[0].body.search("Today") !== -1)) {
+    } else if (historyMessages[0].body.search("Today") !== -1) {
       conversationHistory = 3;
     } else {
-      response.message(`\nSorry. Conversation was lost.\nPlease call 123-456-7890 for further information.`);
+      res.type("text/xml");
+      response.message(`\nSorry. Conversation was lost.\n\nPlease call 123-456-7890 for further information.`);
       return res.send(response.toString());
     }
   }
@@ -71,7 +74,7 @@ router.post("/", async(req, res) => {
           || (body.toLowerCase() === "nope") 
           || (body.toLowerCase() === "n") 
           || (body.toLowerCase() === "not really")) {
-        response.message(`\nThank you for your honest answer.\nAny information, please call 123.`);
+        response.message(`\nThank you for your honest answer.\n\nAny information, please call 123.`);
         res.clearCookie("conversation");
       } else {
         response.message(`\nI cannot understand what you mean.\n Please, can you send Yes if you are able to pay or No if not?`);
@@ -95,7 +98,7 @@ router.post("/", async(req, res) => {
     case 3:
       console.log(" --- Inside CASE 333");
       if ((Number(body) === 1) || (Number(body) === 2)) {
-        response.message(`\nAwesome! \nPlease Follow the instructions below: \n1, 2, 3....\nAny further information, please call 123.`);
+        response.message(`\nAwesome! \nPlease Follow the instructions below: \n1, 2, 3....\n\nAny further information, please call 123.`);
         res.clearCookie("conversation");
         res.type("text/xml");
         return res.send(response.toString());

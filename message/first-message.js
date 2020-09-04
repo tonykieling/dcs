@@ -31,31 +31,31 @@ router.post("/", async(req, res) => {
   const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
   for(let debtor of allDebtors.debtors) {
-    if (debtor.name === "Bob")
+    if ((debtor.name === "Bob") || (debtor.name === "Alice"))
     client.messages.create({
       to: debtor.phone,
       from: TWILIO_PHONE_NUMBER,
-      body: `\nHello ${debtor.name}.\nOn behalf of XYZ we want to talk to you about a debt of $${debtor.debt}.\n\nAre you available to chat?`,
+      body: `\nHello ${debtor.name}.\nOn behalf of XYZ we want to talk to you about a debt of $${debtor.debt}.\n\nAre you able to pay it?`,
       // mymetadata: 1111111111 // it is NOT possible send a custom field using Twilio...
     }).then(function(message) {
       console.log("message::", message);
 
       // content to the cookie
-      const cachedConversation = "1";
+      // const cachedConversation = "1";
       
       // it records cookie in Twilio server
-      // res.cookie("conversation", cachedConversation, { maxAge: cookieAliveTime });
-      res.cookie("conversation", cachedConversation, { maxAge: 1000 * 60 * 60 });
+      // res.cookie("conversation", cachedConversation, { maxAge: 1000 * 60 * 60 });
 
       // When we get a response from Twilio, respond to the HTTP POST request
-      return res.send('Message is inbound!');
+      // return res.send('Message is inbound!');
+      res.send('Message is inbound!');
     });
   }
 
-  return res.send({
-    allDebtors,
-    message: `SMS has been sent to the ${allDebtors.counter}`
-  });
+  // return res.send({
+  //   allDebtors,
+  //   message: `SMS has been sent to the ${allDebtors.counter}`
+  // });
   
 });
 
