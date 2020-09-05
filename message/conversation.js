@@ -9,7 +9,6 @@ const cookieTimeAlive = 1000 * 60 * 60 * 1;
 
 router.post("/", async(req, res) => {
   // console.log(" *********** inside conversation");
-  // console.log("req.cookies.conversation", req.cookies.conversation)
 
   let conversationHistory = Number(req.cookies.conversation);
   const body = req.body.Body.trim();
@@ -40,16 +39,13 @@ router.post("/", async(req, res) => {
         // dateSentBefore: new Date(Date.UTC(2020, 8, 30, 0, 0, 0)),
       });
 
-    // console.log("NUmber of messages:", historyMessages.length);
-    // console.log("======================================\n historyMessages", historyMessages);
-
     const mostRecentMessage = historyMessages[0].body;
-    console.log("---mostRecentMessage", mostRecentMessage);
-    if ((historyMessages[0].body.search("behalf") !== -1)) {
+    // console.log("---mostRecentMessage", mostRecentMessage);
+    if ((mostRecentMessage.search("behalf") !== -1)) {
       conversationHistory = 1;
-    } else if (historyMessages[0].body.search("Credit Card") !== -1){
+    } else if (mostRecentMessage.search("Credit Card") !== -1){
       conversationHistory = 2;
-    } else if (historyMessages[0].body.search("Today") !== -1) {
+    } else if (mostRecentMessage.search("Today") !== -1) {
       conversationHistory = 3;
     } else {
       res.type("text/xml");

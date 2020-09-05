@@ -1,5 +1,5 @@
 /**
- * this is the method to trigger messages to twilio devilery for the debtors
+ * this is the method to trigger first message so twilio devilery them for the debtors
 */ 
 
 "use strict";
@@ -11,16 +11,10 @@ const express     = require('express'),
 require('dotenv').config();
 
 
-// the last number here is the number of hours the cookie will be alive in the Twilio server
-const cookieAliveTime = 1000 * 60 * 60 * 1;
-
-
 router.post("/", async(req, res) => {
-  console.log("1 - this is start!!!!");
-
   const allDebtors = await getDebtors.getAll();
 
-  if (!allDebtors) return res.send({message: "No debtors at all!"});
+  if (!allDebtors) return res.send({message: "No debtors at all in db!"});
 
   // Load Twilio configuration information from system environment variables.
   const TWILIO_ACCOUNT_SID  = process.env.TWILIO_ACCOUNT_SID,
@@ -30,32 +24,28 @@ router.post("/", async(req, res) => {
   // Create an authenticated client to access the Twilio REST API
   const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
+  let countSuccessfullyMessages = 0;
   for(let debtor of allDebtors.debtors) {
-    if ((debtor.name === "Bob") || (debtor.name === "Alice"))
-    client.messages.create({
-      to: debtor.phone,
-      from: TWILIO_PHONE_NUMBER,
-      body: `\nHello ${debtor.name}.\nOn behalf of XYZ we want to talk to you about a debt of $${debtor.debt}.\n\nAre you able to pay it?`,
-      // mymetadata: 1111111111 // it is NOT possible send a custom field using Twilio...
-    }).then(function(message) {
-      console.log("message::", message);
-
-      // content to the cookie
-      // const cachedConversation = "1";
-      
-      // it records cookie in Twilio server
-      // res.cookie("conversation", cachedConversation, { maxAge: 1000 * 60 * 60 });
-
-      // When we get a response from Twilio, respond to the HTTP POST request
-      // return res.send('Message is inbound!');
-      res.send('Message is inbound!');
-    });
+    if ((debtor.name === "Bob") || (debtor.name === "Alice")) {
+      try {
+        const sendMessage = await client.messages.create({
+          to: debtor.phone,
+          from: TWILIO_PHONE_NUMBER,
+          body: `\nHello ${debtor.name}.\nOn behalf of XYZ we want to talk to you about a debt of $${debtor.debt}.\n\nAre you able to pay it?`,
+          // mymetadata: 1111111111 // it is NOT possible send a custom field using Twilio...
+        });
+        console.log(`\t### First message to ${debtor.name}, phone ${sendMessage.to}, debt = ${debtor.debt}`);
+        countSuccessfullyMessages++;
+      } catch(error){
+        console.log(`\t!!! Error ===> Debtor = ${debtor.name}, ${debtor.phone}\n\t  Message ===> ${error.message}`);
+      }
+    }
   }
 
-  // return res.send({
-  //   allDebtors,
-  //   message: `SMS has been sent to the ${allDebtors.counter}`
-  // });
+  return res.send({
+    DebtorsLength: allDebtors.counter,
+    DeliveredTo: `SMS has been sent to ${countSuccessfullyMessages} debtors`
+  });
   
 });
 

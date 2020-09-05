@@ -7,6 +7,7 @@ const cookieParser  = require('cookie-parser');
 const logger        = require('morgan');
 const app           = express();
 const bodyParser    = require("body-parser");
+require('dotenv').config();
 
 const firstMessage  = require("./message/first-message.js");
 const conversation  = require("./message/conversation.js");
@@ -21,8 +22,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(session({
-  secret: 'it-supposed-to-Be-a-$tr0ng_and_secret-Word', 
-  cookie: { maxAge: 60000 },
+  secret: process.env.SESSIONSECRET,
+  cookie: { maxAge: 36000000 }, //10 hours
   resave: false,
   saveUninitialized: true,
 }));
